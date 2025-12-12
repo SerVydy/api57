@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CountryResource;
+use App\Models\Country;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class CountryController extends Controller
 {
@@ -11,13 +15,9 @@ class CountryController extends Controller
      */
     public function index()
     {
-        $countries = ['Russia','Japan'];
+        $countries = Country::all();
 
-        return response()->json([
-            'message' => 'List Country',
-            'data' => $countries,
-            'erorr' => false,
-        ], 200);
+        return CountryResource::collection($countries);
     }
 
     /**
@@ -25,36 +25,56 @@ class CountryController extends Controller
      */
     public function store(Request $request)
     {
-        return response()->json([
-            'message' => 'Country created'
-        ], 201);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|unique:countries'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        };
+
+        $validated = $validator->validated();
+
+        $country = Country::create($validated);
+
+        return new CountryResource($country);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $country)
+    public function show(Country $country)
     {
-        return response()->json([
-            'message' => '$country'
-        ], 200);
+        return new CountryResource($country);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $country)
+    public function update(Request $request, Country $country)
     {
-        return response()->json([
-            'message' => "$country updated"
-        ], 200);
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|unique:countries'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 400);
+        };
+
+        $validated = $validator->validated();
+
+        $country->update($validated);
+
+        return new CountryResource($country);
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $country)
+    public function destroy(Country $country)
     {
+        $country->delete();
         return response()->json([
             'message' => "$country delete"
         ], 204);
