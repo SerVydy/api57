@@ -2,3 +2,4 @@
 2. CRUD Countries + Postman collection
 3. Add model Country + CRUD
 4. Not Found со статусом 404, если запись удалена
+5. Добавлены CRUD операции с моделью User за исключением обновления, это сделать самостоятельно
